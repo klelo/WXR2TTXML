@@ -99,7 +99,7 @@ for ($i = 0; $i < count($wp->item); $i++)
 	
 	// 첨부파일이 있는가 확인합니다.
 	$post['attaches'] = array();
-	if(preg_match_all("/$upload_url(.*?)\.((j|J)(p|P)(g|G)|(g|G)(i|I)(f|F)|(p|P)(n|N)(g|G))/", $post['content'], $matches))
+	if(preg_match_all("/$upload_url(.*?)\.(jpg|gif|png)/i", $post['content'], $matches))
 	{
 		// $matches[0] -> 긁어와야 할 url들
 		// $matches[1] -> 디렉터리/파일 이름만
