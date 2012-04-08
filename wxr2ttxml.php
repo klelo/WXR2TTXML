@@ -40,6 +40,8 @@ date_default_timezone_set('Asia/Seoul');
 
 $name = (string) $wp->title;
 $desc = (string) $wp->description;
+$wurl = (string) $wp->link;
+$upload_url = preg_replace('/\//', '\\/', $wurl . '/');
 
 // 워드프레스의 카테고리 정보를 텍스트큐브에 맞게 변경합니다. 3단 이상 사용시 오류가 발생할 수 있습니다
 
@@ -83,6 +85,7 @@ foreach ($categoriesn as $category)
 
 $notices = array();
 $posts = array();
+$attaches = array();
 
 for ($i = 0; $i < count($wp->item); $i++)
 {
@@ -93,6 +96,33 @@ for ($i = 0; $i < count($wp->item); $i++)
 		
 	// 게시글의 내용을 확인합니다.
 	$post['content'] = (string) $item->contentencoded;
+	
+	// 첨부파일이 있는가 확인합니다.
+	$post['attaches'] = array();
+	if(preg_match_all("/$upload_url(.*?)\.((j|J)(p|P)(g|G)|(g|G)(i|I)(f|F)|(p|P)(n|N)(g|G))/", $post['content'], $matches))
+	{
+		// $matches[0] -> 긁어와야 할 url들
+		// $matches[1] -> 디렉터리/파일 이름만
+		// $matches[2] -> 파일 확장자
+		for($j = 0; $j < count($matches[0]); $j++)
+		{
+			// 디렉터리/파일 이름 형태를 디렉터리+파일 이름 형태로 바꿉니다.
+			$file['name'] = preg_replace('/\//', '', $matches[1][$j] . '.' . $matches[2][$j] );
+			// 파일 이름이 전체 첨부파일 중에 있는가 확인해봅니다.
+			if(!in_array($file['name'], $attaches))
+			{
+				// 파일 이름을 긁어온다.
+				$ch = curl_init($matches[0][$j]);
+				curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+				$file['content'] = curl_exec($ch);
+				$file['content'] = base64_encode($file['content']);
+				
+				array_push($post['attaches'], $file);
+				array_push($attaches, $file['name']);
+			}
+			$post['content'] = str_replace($matches[0][$j], '[##_ATTACH_PATH_##]/' . $file['name'], $post['content']);
+		}
+	}
 	
 	// 게시글의 slug를 가져옵니다
 	$post['slogan'] = (string) $item->wppost_name;
@@ -242,6 +272,13 @@ echo '<?xml version="1.0" encoding="utf-8" ?>';
 			<password></password>
 			<secret>0</secret>
 		</comment>
+<?php endforeach ?>
+<?php foreach($post['attaches'] as $attach): ?>
+		<attachment>
+			<name><?php echo $attach['name'] ?></name>
+			<attached><?php echo $post['date'] ?></attached>
+			<content><?php echo $attach['content'] ?></content>
+		</attachment>
 <?php endforeach ?>
 	</post>
 <?php endforeach ?>
