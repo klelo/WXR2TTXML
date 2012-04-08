@@ -13,7 +13,7 @@ if(!isset($_FILES['wxr']))
 	?>
 <form enctype="multipart/form-data" method="POST">
 <input name="wxr" type="file" /><input type="submit" value="업로드" /></form>
-	<?
+	<?php
 } else {
 	if(end(explode(".", strtolower($_FILES['wxr']['name']))) != "xml")
 	{

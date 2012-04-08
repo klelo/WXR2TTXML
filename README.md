@@ -4,6 +4,8 @@ WXR2TTXML은 워드프레스 확장 RSS(Wordpress eXtended RSS) 데이터 백업
 
 WordPress 3.3.1에서 Textcube 1.8.6, Tistory에서 동작을 확인하였습니다.
 
+PHP 위에서 작동합니다. 또, SimpleXML과 cURL을 필요로 합니다.
+
 ## 주요 기능
  * 워드프레스에서 게시한 포스트와 페이지를 텍스트큐브 기반 블로그의 게시글과 공지사항으로 변환합니다.
  * 댓글과 카테고리 정보, 태그 등도 그대로 옮기실 수 있습니다.
